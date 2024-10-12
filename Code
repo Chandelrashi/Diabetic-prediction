@@ -1,0 +1,55 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+import joblib
+
+# Step 1: Load the Dataset
+# Using the PIMA Indians Diabetes Dataset (public dataset)
+url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"
+
+# Column names based on dataset description
+columns = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age', 'Outcome']
+df = pd.read_csv(url, names=columns)
+
+# Step 2: Data Preprocessing
+# Check for missing values
+print(df.info())
+
+# Step 3: Splitting the dataset into features and target variable
+X = df.drop('Outcome', axis=1)
+y = df['Outcome']
+
+# Split the data into training and test sets (80% training, 20% testing)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 4: Standardizing the feature values
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Step 5: Build the Logistic Regression model
+model = LogisticRegression(max_iter=200)
+model.fit(X_train, y_train)
+
+# Step 6: Making predictions
+y_pred = model.predict(X_test)
+
+# Step 7: Evaluate the Model
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+class_report = classification_report(y_test, y_pred)
+
+# Output the evaluation results
+print(f"Accuracy: {accuracy}")
+print(f"Confusion Matrix:\n {conf_matrix}")
+print(f"Classification Report:\n {class_report}")
+
+# Step 8: Save the Model and Scaler for future use
+joblib.dump(model, 'diabetes_prediction_model.pkl')
+joblib.dump(scaler, 'scaler.pkl')
+
+print("Model and scaler saved as 'diabetes_prediction_model.pkl' and 'scaler.pkl'")
